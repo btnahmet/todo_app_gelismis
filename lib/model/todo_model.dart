@@ -39,4 +39,21 @@ class TodoModel {
           map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null,
     );
   }
+  TodoModel copyWith({
+  String? id,
+  String? title,
+  String? description,
+  DateTime? createdAt,
+  DateTime? dueDate,
+  bool? isDone,
+}) {
+  return TodoModel(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    createdAt: createdAt ?? this.createdAt,
+    dueDate: dueDate ?? this.dueDate,
+    isDone: isDone ?? this.isDone,
+  );
+}
 }
