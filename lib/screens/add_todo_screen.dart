@@ -4,8 +4,15 @@ import 'package:uuid/uuid.dart';
 
 class AddTodoScreen extends StatefulWidget {
   final Function(TodoModel) onAdd;
+  final Function(TodoModel)? onUpdate;
+  final TodoModel? editingTodo;
 
-  const AddTodoScreen({super.key, required this.onAdd});
+  const AddTodoScreen({
+    super.key,
+    required this.onAdd,
+    this.onUpdate,
+    this.editingTodo,
+  });
 
   @override
   State<AddTodoScreen> createState() => _AddTodoScreenState();
@@ -15,19 +22,49 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime? _selectedDate;
+  bool _isEditMode = false;
 
-  void _submitTodo() {
-    if (_titleController.text.trim().isEmpty) return;
+  @override
+  void initState() {
+    super.initState();
 
-    final newTodo = TodoModel(
-      id: const Uuid().v4(),
-      title: _titleController.text.trim(),
-      description: _descriptionController.text.trim(),
-      createdAt: DateTime.now(),
-      dueDate: _selectedDate,
-    );
+    if (widget.editingTodo != null) {
+      _isEditMode = true;
+      _titleController.text = widget.editingTodo!.title;
+      _descriptionController.text = widget.editingTodo!.description ?? '';
+      _selectedDate = widget.editingTodo!.dueDate;
+    }
+  }
 
-    widget.onAdd(newTodo);
+  void _submit() {
+    final title = _titleController.text.trim();
+    final description = _descriptionController.text.trim();
+
+    if (title.isEmpty) return;
+
+    if (_isEditMode) {
+      final updatedTodo = TodoModel(
+        id: widget.editingTodo!.id,
+        title: title,
+        description: description,
+        isDone: widget.editingTodo!.isDone,
+        createdAt: widget.editingTodo!.createdAt,
+        dueDate: _selectedDate,
+      );
+
+      widget.onUpdate?.call(updatedTodo);
+    } else {
+      final newTodo = TodoModel(
+        id: const Uuid().v4(),
+        title: title,
+        description: description,
+        createdAt: DateTime.now(),
+        dueDate: _selectedDate,
+      );
+
+      widget.onAdd(newTodo);
+    }
+
     Navigator.pop(context);
   }
 
@@ -35,7 +72,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: now,
+      initialDate: _selectedDate ?? now,
       firstDate: now,
       lastDate: DateTime(now.year + 5),
     );
@@ -54,7 +91,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Görev Ekleme"),
+        title: Text(_isEditMode ? "Görev Düzenle" : "Görev Ekle"),
         backgroundColor: const Color(0xFFFFF176),
         elevation: 1,
       ),
@@ -67,7 +104,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
             children: [
               SizedBox(height: height * 0.01),
 
-              // Title (5 satıra kadar scroll destekli)
+              // Başlık
               ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: 60,
@@ -88,7 +125,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Description (daha uzun açıklama için)
+              // Açıklama
               ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: 100,
@@ -101,7 +138,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                     expands: true,
                     textAlignVertical: TextAlignVertical.top,
                     decoration: const InputDecoration(
-                      labelText: 'Görev İçeriği',
+                      labelText: 'Görev Açıklaması',
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -109,14 +146,14 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Date Picker
+              // Tarih Seçici
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       _selectedDate == null
-                          ? 'Henüz tarih seçilmedi.'
-                          : 'Selected: ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                          ? 'Tarih seçilmedi.'
+                          : 'Seçilen Tarih: ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
                       style: const TextStyle(color: Colors.blueGrey),
                     ),
                   ),
@@ -132,16 +169,16 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Add Button
+              // Kaydet/Güncelle Butonu
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _submitTodo,
+                  onPressed: _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
                   ),
-                  child: const Text("Görev Ekle"),
+                  child: Text(_isEditMode ? "Görevi Güncelle" : "Görevi Ekle"),
                 ),
               ),
             ],
