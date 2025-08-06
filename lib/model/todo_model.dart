@@ -5,6 +5,7 @@ class TodoModel {
   final bool isDone;
   final DateTime createdAt;
   final DateTime? dueDate;
+  final int userId;
 
   TodoModel({
     required this.id,
@@ -13,6 +14,7 @@ class TodoModel {
     this.isDone = false,
     required this.createdAt,
     this.dueDate,
+    required this.userId,
   });
 
   // Veriyi Map'e çevir
@@ -24,6 +26,7 @@ class TodoModel {
       'isDone': isDone,
       'createdAt': createdAt.toIso8601String(),
       'dueDate': dueDate?.toIso8601String(),
+      'userId': userId,
     };
   }
 
@@ -37,6 +40,7 @@ class TodoModel {
       createdAt: DateTime.parse(map['createdAt']),
       dueDate:
           map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null,
+      userId: map['userId'],
     );
   }
   TodoModel copyWith({
@@ -46,6 +50,7 @@ class TodoModel {
   DateTime? createdAt,
   DateTime? dueDate,
   bool? isDone,
+  int? userId,
 }) {
   return TodoModel(
     id: id ?? this.id,
@@ -54,6 +59,7 @@ class TodoModel {
     createdAt: createdAt ?? this.createdAt,
     dueDate: dueDate ?? this.dueDate,
     isDone: isDone ?? this.isDone,
+    userId: userId ?? this.userId,
   );
 }
 }

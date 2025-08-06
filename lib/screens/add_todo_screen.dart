@@ -6,12 +6,14 @@ class AddTodoScreen extends StatefulWidget {
   final Function(TodoModel) onAdd;
   final Function(TodoModel)? onUpdate;
   final TodoModel? editingTodo;
+  final int userId;
 
   const AddTodoScreen({
     super.key,
     required this.onAdd,
     this.onUpdate,
     this.editingTodo,
+    required this.userId,
   });
 
   @override
@@ -40,16 +42,22 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
     final title = _titleController.text.trim();
     final description = _descriptionController.text.trim();
 
-    if (title.isEmpty) return;
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Görev başlığı boş olamaz!')),
+      );
+      return;
+    }
 
-    if (_isEditMode) {
+    if (_isEditMode && widget.editingTodo != null) {
       final updatedTodo = TodoModel(
         id: widget.editingTodo!.id,
         title: title,
-        description: description,
+        description: description.isEmpty ? null : description,
         isDone: widget.editingTodo!.isDone,
         createdAt: widget.editingTodo!.createdAt,
         dueDate: _selectedDate,
+        userId: widget.userId,
       );
 
       widget.onUpdate?.call(updatedTodo);
@@ -57,9 +65,10 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
       final newTodo = TodoModel(
         id: const Uuid().v4(),
         title: title,
-        description: description,
+        description: description.isEmpty ? null : description,
         createdAt: DateTime.now(),
         dueDate: _selectedDate,
+        userId: widget.userId,
       );
 
       widget.onAdd(newTodo);
