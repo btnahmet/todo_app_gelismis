@@ -73,8 +73,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
+    final height = size.height;
+    final isTablet = width > 600;
+    final isLandscape = width > height;
 
     return SafeArea(
       child: Scaffold(
@@ -88,130 +91,202 @@ class _LoginScreenState extends State<LoginScreen> {
               end: Alignment.bottomRight,
             ),
           ),
-          padding: EdgeInsets.symmetric(horizontal: width * 0.08),
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: height * 0.1),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: height,
+              ),
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? width * 0.15 : width * 0.08,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: isLandscape ? height * 0.05 : height * 0.1),
+                      
+                      // Logo Container
+                      Container(
+                        padding: EdgeInsets.all(isTablet ? 24 : 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          'To-do',
+                          style: TextStyle(
+                            fontSize: isTablet ? 32 : 24,
+                            color: Colors.blueGrey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
+                      
+                      SizedBox(height: isTablet ? 40 : 30),
+                      
+                      // Welcome Text
+                      Text(
+                        'Hoşgeldiniz !',
+                        style: TextStyle(
+                          fontSize: isTablet ? 32 : 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey,
+                        ),
+                      ),
+                      
+                      SizedBox(height: isTablet ? 50 : 40),
+                      
+                      // Form Container
+                      Container(
+                        width: isTablet ? width * 0.4 : double.infinity,
+                        constraints: BoxConstraints(
+                          maxWidth: isTablet ? 400 : double.infinity,
+                        ),
+                        child: Column(
+                          children: [
+                            // Username Field
+                            TextField(
+                              controller: _usernameController,
+                              style: TextStyle(fontSize: isTablet ? 18 : 16),
+                              decoration: InputDecoration(
+                                labelText: 'Kullanıcı Adı',
+                                labelStyle: TextStyle(
+                                  color: Colors.blueGrey,
+                                  fontSize: isTablet ? 18 : 16,
+                                ),
+                                enabledBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blueGrey),
+                                ),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: isTablet ? 30 : 20),
+                            
+                            // Password Field
+                            TextField(
+                              controller: _passwordController,
+                              obscureText: !_isPasswordVisible,
+                              style: TextStyle(fontSize: isTablet ? 18 : 16),
+                              decoration: InputDecoration(
+                                labelText: 'Şifre',
+                                labelStyle: TextStyle(
+                                  color: Colors.blueGrey,
+                                  fontSize: isTablet ? 18 : 16,
+                                ),
+                                enabledBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blueGrey),
+                                ),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                    color: Colors.blueGrey,
+                                    size: isTablet ? 28 : 24,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: isTablet ? 50 : 40),
+                            
+                            // Login Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _login,
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  backgroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: isTablet ? 20 : 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(isTablet ? 35 : 30),
+                                  ),
+                                  elevation: 4,
+                                ),
+                                child: Text(
+                                  'Giriş Yap',
+                                  style: TextStyle(
+                                    fontSize: isTablet ? 18 : 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: isTablet ? 15 : 10),
+                            
+                            // Forgot Password Text
+                            Text(
+                              'Şifreni mi unuttun?',
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: isTablet ? 16 : 14,
+                              ),
+                            ),
+                            
+                            SizedBox(height: isTablet ? 40 : 30),
+                            
+                            // Register Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const RegisterScreen(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  backgroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: isTablet ? 20 : 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(isTablet ? 35 : 30),
+                                  ),
+                                  elevation: 4,
+                                ),
+                                child: Text(
+                                  'Hesap Oluştur',
+                                  style: TextStyle(
+                                    fontSize: isTablet ? 18 : 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      SizedBox(height: isLandscape ? height * 0.05 : height * 0.1),
                     ],
                   ),
-                  child: const Text(
-                    'To-do',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.blueGrey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
                 ),
-                const SizedBox(height: 30),
-                const Text(
-                  'Hoşgeldiniz !',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                TextField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Kullanıcı Adı',
-                    labelStyle: TextStyle(color: Colors.blueGrey),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blueGrey),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blueGrey, width: 2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: !_isPasswordVisible,
-                  decoration: InputDecoration(
-                    labelText: 'Şifre',
-                    labelStyle: const TextStyle(color: Colors.blueGrey),
-                    enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blueGrey),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blueGrey, width: 2),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                        color: Colors.blueGrey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _login,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: const Text('Giriş Yap'),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Şifreni mi unuttun?',
-                  style: TextStyle(color: Colors.black54),
-                ),
-                const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterScreen(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: const Text('Hesap Oluştur'),
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
+              ),
             ),
           ),
         ),

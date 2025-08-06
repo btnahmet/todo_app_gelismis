@@ -211,15 +211,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
+    final height = size.height;
+    final isTablet = width > 600;
+    final isLandscape = width > height;
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFFFFF176),
-          title: const Text(
+          title: Text(
             'Görev Listem',
             style: TextStyle(
               color: Colors.blueGrey,
               fontWeight: FontWeight.bold,
+              fontSize: isTablet ? 24 : 20,
             ),
           ),
           centerTitle: true,
@@ -236,14 +243,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.person,
                 color: Colors.blueGrey,
-                size: 28,
+                size: isTablet ? 32 : 28,
               ),
               tooltip: 'Profil',
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: isTablet ? 15 : 10),
           ],
         ),
         backgroundColor: const Color(0xFFFFF9C4),
@@ -254,108 +261,134 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               )
             : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? width * 0.1 : 20,
+                ),
                 child: _activeTodos.isEmpty
-                    ? const Center(child: Text("Henüz hiç görev yok."))
-                    : ListView.builder(
-                  itemCount: _activeTodos.length,
-                  itemBuilder: (context, index) {
-                    final todo = _activeTodos[index];
-                    final isExpanded = _expandedIds.contains(todo.id);
-
-                    return GestureDetector(
-                      onTap: () => _toggleExpand(todo.id),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 6,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
+                    ? Center(
+                        child: Text(
+                          "Henüz hiç görev yok.",
+                          style: TextStyle(
+                            fontSize: isTablet ? 20 : 16,
+                            color: Colors.blueGrey,
+                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Checkbox(
-                                  value: false,
-                                  onChanged: (_) => _markAsDone(context, todo),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                      )
+                    : ListView.builder(
+                        itemCount: _activeTodos.length,
+                        itemBuilder: (context, index) {
+                          final todo = _activeTodos[index];
+                          final isExpanded = _expandedIds.contains(todo.id);
+
+                          return GestureDetector(
+                            onTap: () => _toggleExpand(todo.id),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              margin: EdgeInsets.symmetric(
+                                vertical: isTablet ? 12 : 8,
+                              ),
+                              padding: EdgeInsets.all(isTablet ? 20 : 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(isTablet ? 16 : 12),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 6,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
                                     children: [
-                                      Text(
-                                        todo.title,
-                                        style: const TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blueGrey,
+                                      Transform.scale(
+                                        scale: isTablet ? 1.2 : 1.0,
+                                        child: Checkbox(
+                                          value: false,
+                                          onChanged: (_) => _markAsDone(context, todo),
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                                                             Text(
-                                         'Tarih: ${todo.dueDate != null ? "${todo.dueDate!.day}/${todo.dueDate!.month}/${todo.dueDate!.year}" : "Belirtilmemiş"}',
-                                         style: const TextStyle(
-                                             fontSize: 13,
-                                             color: Colors.black54),
-                                       ),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              todo.title,
+                                              style: TextStyle(
+                                                fontSize: isTablet ? 20 : 17,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blueGrey,
+                                              ),
+                                            ),
+                                            SizedBox(height: isTablet ? 6 : 4),
+                                            Text(
+                                              'Tarih: ${todo.dueDate != null ? "${todo.dueDate!.day}/${todo.dueDate!.month}/${todo.dueDate!.year}" : "Belirtilmemiş"}',
+                                              style: TextStyle(
+                                                fontSize: isTablet ? 15 : 13,
+                                                color: Colors.black54,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        tooltip: "Düzenle",
+                                        icon: Icon(
+                                          Icons.edit,
+                                          color: Colors.blueGrey,
+                                          size: isTablet ? 28 : 24,
+                                        ),
+                                        onPressed: () async {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => AddTodoScreen(
+                                                onAdd: _addTodo,
+                                                onUpdate: _updateTodo,
+                                                editingTodo: todo,
+                                                userId: widget.userId,
+                                              ),
+                                            ),
+                                          );
+                                          // Sayfa döndüğünde listeyi yenile
+                                          _refreshTodos();
+                                        },
+                                      ),
+                                      IconButton(
+                                        tooltip: "Sil",
+                                        icon: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: isTablet ? 28 : 24,
+                                        ),
+                                        onPressed: () => _confirmDelete(todo.id),
+                                      ),
                                     ],
                                   ),
-                                ),
-                                IconButton(
-                                  tooltip: "Düzenle",
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.blueGrey),
-                                  onPressed: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => AddTodoScreen(
-                                          onAdd: _addTodo,
-                                          onUpdate: _updateTodo,
-                                          editingTodo: todo,
-                                          userId: widget.userId,
-                                        ),
+                                  if (isExpanded && todo.description != null && todo.description!.isNotEmpty) ...[
+                                    Divider(height: isTablet ? 20 : 16),
+                                    Text(
+                                      todo.description!,
+                                      style: TextStyle(
+                                        fontSize: isTablet ? 17 : 15,
                                       ),
-                                    );
-                                    // Sayfa döndüğünde listeyi yenile
-                                    _refreshTodos();
-                                  },
-                                ),
-                                IconButton(
-                                  tooltip: "Sil",
-                                  icon:
-                                      const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => _confirmDelete(todo.id),
-                                ),
-                              ],
-                            ),
-                            if (isExpanded && todo.description != null && todo.description!.isNotEmpty) ...[
-                              const Divider(height: 16),
-                              Text(
-                                todo.description!,
-                                style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ]
+                                ],
                               ),
-                            ]
-                          ],
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
-        ),
+              ),
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(
+            vertical: isTablet ? 16 : 12,
+            horizontal: isTablet ? width * 0.1 : 0,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -376,8 +409,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Sayfa döndüğünde listeyi yenile
                   _refreshTodos();
                 },
-                label: const Text("Tamamlanan Görevler"),
-                icon: const Icon(Icons.check_circle_outline),
+                label: Text(
+                  "Tamamlanan Görevler",
+                  style: TextStyle(
+                    fontSize: isTablet ? 16 : 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                icon: Icon(
+                  Icons.check_circle_outline,
+                  size: isTablet ? 24 : 20,
+                ),
               ),
               FloatingActionButton(
                 heroTag: 'addTaskBtn',
@@ -397,7 +439,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Sayfa döndüğünde listeyi yenile
                   _refreshTodos();
                 },
-                child: const Icon(Icons.add),
+                child: Icon(
+                  Icons.add,
+                  size: isTablet ? 28 : 24,
+                ),
               ),
             ],
           ),

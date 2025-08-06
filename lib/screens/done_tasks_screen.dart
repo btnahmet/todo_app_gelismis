@@ -143,10 +143,22 @@ class _DoneTasksScreenState extends State<DoneTasksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
+    final height = size.height;
+    final isTablet = width > 600;
+    final isLandscape = width > height;
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Tamamlanan Görevler"),
+          title: Text(
+            "Tamamlanan Görevler",
+            style: TextStyle(
+              fontSize: isTablet ? 24 : 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           backgroundColor: const Color(0xFFFFF176),
           foregroundColor: Colors.black,
         ),
@@ -158,9 +170,17 @@ class _DoneTasksScreenState extends State<DoneTasksScreen> {
                 ),
               )
             : _doneTodos.isEmpty
-                ? const Center(child: Text("Henüz tamamlanmış görev yok."))
+                ? Center(
+                    child: Text(
+                      "Henüz tamamlanmış görev yok.",
+                      style: TextStyle(
+                        fontSize: isTablet ? 20 : 16,
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                  )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(isTablet ? 24 : 16),
                     itemCount: _doneTodos.length,
                     itemBuilder: (context, index) {
                       final todo = _doneTodos[index];
@@ -169,11 +189,13 @@ class _DoneTasksScreenState extends State<DoneTasksScreen> {
                         onTap: () => _toggleExpand(todo.id),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          padding: const EdgeInsets.all(16),
+                          margin: EdgeInsets.symmetric(
+                            vertical: isTablet ? 12 : 8,
+                          ),
+                          padding: EdgeInsets.all(isTablet ? 20 : 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(isTablet ? 16 : 12),
                             boxShadow: const [
                               BoxShadow(
                                 color: Colors.black26,
@@ -185,45 +207,57 @@ class _DoneTasksScreenState extends State<DoneTasksScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                                                             Row(
-                                 children: [
-                                   Checkbox(
-                                     value: true,
-                                     onChanged: (_) => _confirmUncheck(todo),
-                                   ),
-                                   Expanded(
-                                     child: Column(
-                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                       children: [
-                                         Text(
-                                           todo.title,
-                                           style: const TextStyle(
-                                             fontSize: 17,
-                                             fontWeight: FontWeight.bold,
-                                             color: Colors.grey,
-                                             decoration: TextDecoration.lineThrough,
-                                           ),
-                                         ),
-                                         const SizedBox(height: 4),
-                                                                                   Text(
-                                            'Tarih: ${todo.dueDate != null ? "${todo.dueDate!.day}/${todo.dueDate!.month}/${todo.dueDate!.year}" : "Belirtilmemiş"}',
-                                            style: const TextStyle(fontSize: 13, color: Colors.black54),
+                              Row(
+                                children: [
+                                  Transform.scale(
+                                    scale: isTablet ? 1.2 : 1.0,
+                                    child: Checkbox(
+                                      value: true,
+                                      onChanged: (_) => _confirmUncheck(todo),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          todo.title,
+                                          style: TextStyle(
+                                            fontSize: isTablet ? 20 : 17,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey,
+                                            decoration: TextDecoration.lineThrough,
                                           ),
-                                       ],
-                                     ),
-                                   ),
-                                   IconButton(
-                                     tooltip: "Sil",
-                                     icon: const Icon(Icons.delete, color: Colors.red),
-                                     onPressed: () => _confirmDelete(todo.id),
-                                   ),
-                                 ],
-                               ),
+                                        ),
+                                        SizedBox(height: isTablet ? 6 : 4),
+                                        Text(
+                                          'Tarih: ${todo.dueDate != null ? "${todo.dueDate!.day}/${todo.dueDate!.month}/${todo.dueDate!.year}" : "Belirtilmemiş"}',
+                                          style: TextStyle(
+                                            fontSize: isTablet ? 15 : 13,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: "Sil",
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                      size: isTablet ? 28 : 24,
+                                    ),
+                                    onPressed: () => _confirmDelete(todo.id),
+                                  ),
+                                ],
+                              ),
                               if (isExpanded && todo.description != null && todo.description!.isNotEmpty) ...[
-                                const Divider(height: 16),
+                                Divider(height: isTablet ? 20 : 16),
                                 Text(
                                   todo.description!,
-                                  style: const TextStyle(fontSize: 15),
+                                  style: TextStyle(
+                                    fontSize: isTablet ? 17 : 15,
+                                  ),
                                 ),
                               ]
                             ],
