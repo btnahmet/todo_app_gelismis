@@ -110,7 +110,7 @@ class DatabaseHelper {
       'todos',
       where: 'userId = ?',
       whereArgs: [userId],
-      orderBy: 'createdAt DESC',
+      orderBy: 'dueDate ASC', // Bitiş tarihine göre artan sıralama
     );
 
     return List.generate(maps.length, (i) {
@@ -143,7 +143,7 @@ class DatabaseHelper {
       'todos',
       where: 'userId = ? AND isDone = 0',
       whereArgs: [userId],
-      orderBy: 'createdAt DESC',
+      orderBy: 'dueDate ASC', // Bitiş tarihine göre artan sıralama
     );
 
     return List.generate(maps.length, (i) {
@@ -157,7 +157,7 @@ class DatabaseHelper {
       'todos',
       where: 'userId = ? AND isDone = 1',
       whereArgs: [userId],
-      orderBy: 'createdAt DESC',
+      orderBy: 'dueDate ASC', // Bitiş tarihine göre artan sıralama
     );
 
     return List.generate(maps.length, (i) {

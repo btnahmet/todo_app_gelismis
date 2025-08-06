@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/model/todo_model.dart';
 import 'package:todo_app_gelismis/screens/add_todo_screen.dart';
 import 'package:todo_app_gelismis/screens/done_tasks_screen.dart';
+import 'package:todo_app_gelismis/screens/profile_screen.dart';
+import 'package:todo_app_gelismis/database/database_helper.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final int userId;
+
+  const HomeScreen({
+    super.key,
+    required this.userId,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -13,27 +20,84 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<TodoModel> _todos = [];
   final Set<String> _expandedIds = {};
-  int _currentUserId = 1; // Geçici olarak 1 kullanıyoruz, daha sonra login'den alacağız
+  bool _isLoading = true;
 
-  void _addTodo(TodoModel todo) {
-    setState(() {
-      _todos.add(todo);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _loadTodos();
   }
 
-  void _updateTodo(TodoModel updatedTodo) {
-    setState(() {
-      final index = _todos.indexWhere((t) => t.id == updatedTodo.id);
-      if (index != -1) {
-        _todos[index] = updatedTodo;
-      }
-    });
+  Future<void> _loadTodos() async {
+    try {
+      final dbHelper = DatabaseHelper();
+      final todos = await dbHelper.getTodosByUserId(widget.userId);
+      setState(() {
+        _todos.clear();
+        _todos.addAll(todos);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Görevler yüklenirken hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
-  void _deleteTodo(String id) {
-    setState(() {
-      _todos.removeWhere((t) => t.id == id);
-    });
+  // Diğer sayfalardan döndüğümüzde listeyi yenilemek için
+  void _refreshTodos() {
+    _loadTodos();
+  }
+
+  Future<void> _addTodo(TodoModel todo) async {
+    try {
+      final dbHelper = DatabaseHelper();
+      await dbHelper.insertTodo(todo);
+      await _loadTodos(); // Listeyi yenile
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Görev eklenirken hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _updateTodo(TodoModel updatedTodo) async {
+    try {
+      final dbHelper = DatabaseHelper();
+      await dbHelper.updateTodo(updatedTodo);
+      await _loadTodos(); // Listeyi yenile
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Görev güncellenirken hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _deleteTodo(String id) async {
+    try {
+      final dbHelper = DatabaseHelper();
+      await dbHelper.deleteTodo(id);
+      await _loadTodos(); // Listeyi yenile
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Görev silinirken hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _toggleExpand(String id) {
@@ -89,29 +153,61 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (shouldMarkDone == true) {
-      setState(() {
-        final index = _todos.indexWhere((t) => t.id == todo.id);
-        if (index != -1) {
-          _todos[index] = todo.copyWith(isDone: true);
-        }
-      });
+      try {
+        final dbHelper = DatabaseHelper();
+        final updatedTodo = todo.copyWith(isDone: true);
+        await dbHelper.updateTodo(updatedTodo);
+        await _loadTodos(); // Listeyi yenile
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Görev güncellenirken hata oluştu: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
-  void _uncheckDoneTask(TodoModel task) {
-    setState(() {
-      final index = _todos.indexWhere((t) => t.id == task.id);
-      if (index != -1) {
-        _todos[index] = task.copyWith(isDone: false);
-      }
-    });
+  Future<void> _uncheckDoneTask(TodoModel task) async {
+    try {
+      final dbHelper = DatabaseHelper();
+      final updatedTodo = task.copyWith(isDone: false);
+      await dbHelper.updateTodo(updatedTodo);
+      await _loadTodos(); // Listeyi yenile
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Görev güncellenirken hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
-  List<TodoModel> get _activeTodos =>
-      _todos.where((todo) => !todo.isDone).toList();
+  List<TodoModel> get _activeTodos {
+    final activeTodos = _todos.where((todo) => !todo.isDone).toList();
+    // Bitiş tarihine göre artan sıralama (en erken önce)
+    activeTodos.sort((a, b) {
+      if (a.dueDate == null && b.dueDate == null) return 0;
+      if (a.dueDate == null) return 1; // null değerler en sona
+      if (b.dueDate == null) return -1;
+      return a.dueDate!.compareTo(b.dueDate!);
+    });
+    return activeTodos;
+  }
 
-  List<TodoModel> get _doneTodos =>
-      _todos.where((todo) => todo.isDone).toList();
+  List<TodoModel> get _doneTodos {
+    final doneTodos = _todos.where((todo) => todo.isDone).toList();
+    // Bitiş tarihine göre artan sıralama (en erken önce)
+    doneTodos.sort((a, b) {
+      if (a.dueDate == null && b.dueDate == null) return 0;
+      if (a.dueDate == null) return 1; // null değerler en sona
+      if (b.dueDate == null) return -1;
+      return a.dueDate!.compareTo(b.dueDate!);
+    });
+    return doneTodos;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,13 +224,40 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           centerTitle: true,
           elevation: 2,
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(
+                      userId: widget.userId,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.person,
+                color: Colors.blueGrey,
+                size: 28,
+              ),
+              tooltip: 'Profil',
+            ),
+            const SizedBox(width: 10),
+          ],
         ),
         backgroundColor: const Color(0xFFFFF9C4),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: _activeTodos.isEmpty
-              ? const Center(child: Text("Henüz hiç görev yok."))
-              : ListView.builder(
+        body: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.blueGrey,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _activeTodos.isEmpty
+                    ? const Center(child: Text("Henüz hiç görev yok."))
+                    : ListView.builder(
                   itemCount: _activeTodos.length,
                   itemBuilder: (context, index) {
                     final todo = _activeTodos[index];
@@ -180,12 +303,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       const SizedBox(height: 4),
-                                      Text(
-                                        'Tarih: ${todo.dueDate != null ? "${todo.dueDate!.day}/${todo.dueDate!.month}/${todo.dueDate!.year}" : "Belirtilmemiş"}',
-                                        style: const TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.black54),
-                                      ),
+                                                                             Text(
+                                         'Tarih: ${todo.dueDate != null ? "${todo.dueDate!.day}/${todo.dueDate!.month}/${todo.dueDate!.year}" : "Belirtilmemiş"}',
+                                         style: const TextStyle(
+                                             fontSize: 13,
+                                             color: Colors.black54),
+                                       ),
                                     ],
                                   ),
                                 ),
@@ -193,18 +316,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                   tooltip: "Düzenle",
                                   icon: const Icon(Icons.edit,
                                       color: Colors.blueGrey),
-                                  onPressed: () {
-                                    Navigator.push(
+                                  onPressed: () async {
+                                    await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) => AddTodoScreen(
                                           onAdd: _addTodo,
                                           onUpdate: _updateTodo,
                                           editingTodo: todo,
-                                          userId: _currentUserId,
+                                          userId: widget.userId,
                                         ),
                                       ),
                                     );
+                                    // Sayfa döndüğünde listeyi yenile
+                                    _refreshTodos();
                                   },
                                 ),
                                 IconButton(
@@ -238,14 +363,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 heroTag: 'doneTasksBtn',
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.blueGrey,
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          DoneTasksScreen(doneTodos: _doneTodos, onUncheck: _uncheckDoneTask),
+                      builder: (_) => DoneTasksScreen(
+                        userId: widget.userId,
+                        onTodoUpdated: _refreshTodos,
+                      ),
                     ),
                   );
+                  // Sayfa döndüğünde listeyi yenile
+                  _refreshTodos();
                 },
                 label: const Text("Tamamlanan Görevler"),
                 icon: const Icon(Icons.check_circle_outline),
@@ -255,16 +384,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.blueGrey,
                 tooltip: "Yeni Görev Ekle",
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => AddTodoScreen(
                         onAdd: _addTodo,
-                        userId: _currentUserId,
+                        userId: widget.userId,
                       ),
                     ),
                   );
+                  // Sayfa döndüğünde listeyi yenile
+                  _refreshTodos();
                 },
                 child: const Icon(Icons.add),
               ),

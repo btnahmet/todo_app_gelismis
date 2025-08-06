@@ -23,7 +23,7 @@ class TodoModel {
       'id': id,
       'title': title,
       'description': description,
-      'isDone': isDone,
+      'isDone': isDone ? 1 : 0,
       'createdAt': createdAt.toIso8601String(),
       'dueDate': dueDate?.toIso8601String(),
       'userId': userId,
@@ -36,7 +36,7 @@ class TodoModel {
       id: map['id'],
       title: map['title'],
       description: map['description'],
-      isDone: map['isDone'],
+      isDone: map['isDone'] == 1 || map['isDone'] == true,
       createdAt: DateTime.parse(map['createdAt']),
       dueDate:
           map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null,
