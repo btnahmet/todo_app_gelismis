@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/model/user_model.dart';
 import 'package:todo_app_gelismis/database/database_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   final int userId;
@@ -109,10 +110,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Container(
                                     width: isTablet ? 150 : 120,
                                     height: isTablet ? 150 : 120,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       shape: BoxShape.circle,
-                                      boxShadow: const [
+                                      boxShadow: [
                                         BoxShadow(
                                           color: Colors.black26,
                                           blurRadius: 10,
@@ -261,6 +262,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               ],
                                             );
                                           },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  
+                                  SizedBox(height: isTablet ? 40 : 30),
+
+                                  // Beni Hatırla Ayarları
+                                  Container(
+                                    padding: EdgeInsets.all(isTablet ? 28 : 20),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Ayarlar',
+                                          style: TextStyle(
+                                            fontSize: isTablet ? 24 : 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blueGrey,
+                                          ),
+                                        ),
+                                        SizedBox(height: isTablet ? 20 : 15),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.all(isTablet ? 12 : 8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(isTablet ? 12 : 8),
+                                              ),
+                                              child: Icon(
+                                                Icons.remember_me,
+                                                color: Colors.orange,
+                                                size: isTablet ? 32 : 24,
+                                              ),
+                                            ),
+                                            SizedBox(width: isTablet ? 20 : 15),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Beni Hatırla',
+                                                    style: TextStyle(
+                                                      fontSize: isTablet ? 18 : 16,
+                                                      color: Colors.blueGrey,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: isTablet ? 4 : 2),
+                                                  Text(
+                                                    'Otomatik giriş yapma özelliği',
+                                                    style: TextStyle(
+                                                      fontSize: isTablet ? 14 : 12,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () => _clearRememberMe(),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.orange,
+                                                foregroundColor: Colors.white,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: isTablet ? 16 : 12,
+                                                  vertical: isTablet ? 8 : 6,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(isTablet ? 8 : 6),
+                                                ),
+                                              ),
+                                              child: Text(
+                                                'Kapat',
+                                                style: TextStyle(
+                                                  fontSize: isTablet ? 14 : 12,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -428,6 +522,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ];
     } catch (e) {
       return [0, 0, 0];
+    }
+  }
+
+  // Beni Hatırla ayarını kapat
+  Future<void> _clearRememberMe() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('saved_username');
+      await prefs.remove('saved_password');
+      await prefs.setBool('remember_me', false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Beni Hatırla özelliği kapatıldı.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Hata: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 } 

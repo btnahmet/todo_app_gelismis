@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/screens/home_screen.dart';
 import 'package:todo_app_gelismis/screens/register_screen.dart';
 import 'package:todo_app_gelismis/database/database_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,12 +15,58 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  bool _rememberMe = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
 
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  // Kaydedilmiş kullanıcı bilgilerini yükle
+  Future<void> _loadSavedCredentials() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedUsername = prefs.getString('saved_username');
+      final savedPassword = prefs.getString('saved_password');
+      final rememberMe = prefs.getBool('remember_me') ?? false;
+
+      if (rememberMe && savedUsername != null && savedPassword != null) {
+        setState(() {
+          _usernameController.text = savedUsername;
+          _passwordController.text = savedPassword;
+          _rememberMe = true;
+        });
+      }
+    } catch (e) {
+      print('Kaydedilmiş bilgiler yüklenirken hata: $e');
+    }
+  }
+
+  // Kullanıcı bilgilerini kaydet
+  Future<void> _saveCredentials() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (_rememberMe) {
+        await prefs.setString('saved_username', _usernameController.text.trim());
+        await prefs.setString('saved_password', _passwordController.text);
+        await prefs.setBool('remember_me', true);
+      } else {
+        await prefs.remove('saved_username');
+        await prefs.remove('saved_password');
+        await prefs.setBool('remember_me', false);
+      }
+    } catch (e) {
+      print('Bilgiler kaydedilirken hata: $e');
+    }
   }
 
   void _login() async {
@@ -36,11 +83,18 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       final dbHelper = DatabaseHelper();
       final user = await dbHelper.getUserByUsername(username);
 
       if (user != null && user.password == password) {
+        // Kullanıcı bilgilerini kaydet
+        await _saveCredentials();
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Giriş başarılı!'),
@@ -68,6 +122,10 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.red,
         ),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -205,13 +263,43 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             
-                            SizedBox(height: isTablet ? 50 : 40),
+                            SizedBox(height: isTablet ? 20 : 15),
+                            
+                            // Beni Hatırla Switch
+                            Row(
+                              children: [
+                                Transform.scale(
+                                  scale: isTablet ? 1.2 : 1.0,
+                                  child: Switch(
+                                    value: _rememberMe,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _rememberMe = value;
+                                      });
+                                    },
+                                    activeColor: Colors.blueGrey,
+                                    activeTrackColor: Colors.blueGrey.withOpacity(0.3),
+                                  ),
+                                ),
+                                SizedBox(width: isTablet ? 12 : 8),
+                                Text(
+                                  'Beni Hatırla',
+                                  style: TextStyle(
+                                    fontSize: isTablet ? 16 : 14,
+                                    color: Colors.blueGrey,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
+                            SizedBox(height: isTablet ? 30 : 25),
                             
                             // Login Button
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: _login,
+                                onPressed: _isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.black,
                                   backgroundColor: Colors.white,
@@ -223,13 +311,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   elevation: 4,
                                 ),
-                                child: Text(
-                                  'Giriş Yap',
-                                  style: TextStyle(
-                                    fontSize: isTablet ? 18 : 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                                child: _isLoading
+                                    ? SizedBox(
+                                        height: isTablet ? 24 : 20,
+                                        width: isTablet ? 24 : 20,
+                                        child: const CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.blueGrey,
+                                        ),
+                                      )
+                                    : Text(
+                                        'Giriş Yap',
+                                        style: TextStyle(
+                                          fontSize: isTablet ? 18 : 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
                               ),
                             ),
                             
