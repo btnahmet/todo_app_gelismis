@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/model/user_model.dart';
 import 'package:todo_app_gelismis/database/database_helper.dart';
+import 'package:todo_app_gelismis/services/hybrid_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -27,8 +28,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUserData() async {
     try {
-      final dbHelper = DatabaseHelper();
-      final user = await dbHelper.getUserById(widget.userId);
+      final hybridService = HybridService();
+      final user = await hybridService.getUserProfile(widget.userId);
       
       setState(() {
         _user = user;
@@ -366,12 +367,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          '/',
-                                          (route) => false,
-                                        );
+                                      onPressed: () async {
+                                        try {
+                                          final hybridService = HybridService();
+                                          await hybridService.logout();
+                                          
+                                          Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            '/',
+                                            (route) => false,
+                                          );
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Çıkış yapılırken hata oluştu: $e'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.red,

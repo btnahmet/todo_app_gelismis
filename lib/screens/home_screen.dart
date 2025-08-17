@@ -4,6 +4,7 @@ import 'package:todo_app_gelismis/screens/add_todo_screen.dart';
 import 'package:todo_app_gelismis/screens/done_tasks_screen.dart';
 import 'package:todo_app_gelismis/screens/profile_screen.dart';
 import 'package:todo_app_gelismis/database/database_helper.dart';
+import 'package:todo_app_gelismis/services/hybrid_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final int userId;
@@ -30,8 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadTodos() async {
     try {
-      final dbHelper = DatabaseHelper();
-      final todos = await dbHelper.getTodosByUserId(widget.userId);
+      final hybridService = HybridService();
+      final todos = await hybridService.getTodos(widget.userId);
+      
       setState(() {
         _todos.clear();
         _todos.addAll(todos);
@@ -57,8 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _addTodo(TodoModel todo) async {
     try {
-      final dbHelper = DatabaseHelper();
-      await dbHelper.insertTodo(todo);
+      final hybridService = HybridService();
+      await hybridService.createTodo(todo);
       await _loadTodos(); // Listeyi yenile
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -72,8 +74,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _updateTodo(TodoModel updatedTodo) async {
     try {
-      final dbHelper = DatabaseHelper();
-      await dbHelper.updateTodo(updatedTodo);
+      final hybridService = HybridService();
+      await hybridService.updateTodo(updatedTodo);
       await _loadTodos(); // Listeyi yenile
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -87,8 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _deleteTodo(String id) async {
     try {
-      final dbHelper = DatabaseHelper();
-      await dbHelper.deleteTodo(id);
+      final hybridService = HybridService();
+      await hybridService.deleteTodo(id);
       await _loadTodos(); // Listeyi yenile
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

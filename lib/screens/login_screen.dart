@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/screens/home_screen.dart';
 import 'package:todo_app_gelismis/screens/register_screen.dart';
 import 'package:todo_app_gelismis/database/database_helper.dart';
+import 'package:todo_app_gelismis/services/hybrid_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -88,33 +89,31 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final dbHelper = DatabaseHelper();
-      final user = await dbHelper.getUserByUsername(username);
+      // Hybrid service ile giriş yap
+      final hybridService = HybridService();
+      final response = await hybridService.login(username, password);
+      
+      // Kullanıcı bilgilerini kaydet
+      await _saveCredentials();
 
-      if (user != null && user.password == password) {
-        // Kullanıcı bilgilerini kaydet
-        await _saveCredentials();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Giriş başarılı!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(userId: user.id!),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Kullanıcı adı veya şifre hatalı!'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      // Hangi modda çalıştığını göster
+      final message = response['message'] ?? 'Giriş başarılı!';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+        ),
+      );
+      
+      // Kullanıcı ID'sini response'dan al veya varsayılan değer kullan
+      final userId = response['user']?['id'] ?? 1;
+      
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(userId: userId),
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

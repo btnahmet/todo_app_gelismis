@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/screens/home_screen.dart';
 import 'package:todo_app_gelismis/database/database_helper.dart';
 import 'package:todo_app_gelismis/model/user_model.dart';
+import 'package:todo_app_gelismis/services/hybrid_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -33,53 +34,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _register() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final dbHelper = DatabaseHelper();
+        final hybridService = HybridService();
         
-        // Kullanıcı adı kontrolü
-        final isUsernameExists = await dbHelper.isUsernameExists(_usernameController.text.trim());
-        if (isUsernameExists) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Bu kullanıcı adı zaten kullanılıyor!'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        // Yeni kullanıcı oluştur
-        final newUser = UserModel(
-          name: _nameController.text.trim(),
-          surname: _surnameController.text.trim(),
-          username: _usernameController.text.trim(),
-          password: _passwordController.text,
-          createdAt: DateTime.now(),
+        // Hybrid service ile kayıt ol
+        final response = await hybridService.register(
+          _usernameController.text.trim(),
+          '${_nameController.text.trim()}.${_surnameController.text.trim()}@example.com', // Email oluştur
+          _passwordController.text,
         );
-
-        // Kullanıcıyı veritabanına kaydet
-        final userId = await dbHelper.insertUser(newUser);
         
-        if (userId > 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Kayıt başarılı! Giriş yapabilirsiniz.'),
-              backgroundColor: Colors.green,
-            ),
-          );
-                  Navigator.pushReplacement(
+        // Hangi modda çalıştığını göster
+        final message = response['message'] ?? 'Kayıt başarılı! Hoşgeldiniz.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        // Kullanıcı ID'sini response'dan al veya varsayılan değer kullan
+        final userId = response['user']?['id'] ?? 1;
+        
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => HomeScreen(userId: userId),
           ),
         );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Kayıt sırasında bir hata oluştu!'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

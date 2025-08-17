@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/screens/login_screen.dart';
+import 'package:todo_app_gelismis/services/api_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -43,6 +44,16 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _checkSavedCredentials();
+    // API testini çalıştır (debug modda)
+    _testApiConnection();
+  }
+  
+  Future<void> _testApiConnection() async {
+    try {
+      await ApiTest.testApiConnection();
+    } catch (e) {
+      print('API test hatası: $e');
+    }
   }
 
   Future<void> _checkSavedCredentials() async {
