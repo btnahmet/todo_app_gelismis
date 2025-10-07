@@ -165,25 +165,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       
                       // Logo Container
                       Container(
-                        padding: EdgeInsets.all(isTablet ? 24 : 16),
+                        padding: EdgeInsets.all(isTablet ? 0 : 0),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
-                              blurRadius: 8,
+                              blurRadius: 4,
                               offset: Offset(0, 4),
                             ),
                           ],
                         ),
-                        child: Text(
-                          'To-do',
-                          style: TextStyle(
-                            fontSize: isTablet ? 32 : 24,
-                            color: Colors.blueGrey,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: Image.asset(
+                          'assets/icon.png',
+                          width: isTablet ? 160 : 120,
+                          height: isTablet ? 160 : 120,
+                          fit: BoxFit.contain,
                         ),
                       ),
                       
@@ -191,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       
                       // Welcome Text
                       Text(
-                        'Hoşgeldiniz !',
+                        'Hoşgeldiniz',
                         style: TextStyle(
                           fontSize: isTablet ? 32 : 26,
                           fontWeight: FontWeight.bold,
