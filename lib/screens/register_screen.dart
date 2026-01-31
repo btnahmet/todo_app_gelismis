@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/screens/home_screen.dart';
-import 'package:todo_app_gelismis/database/database_helper.dart';
-import 'package:todo_app_gelismis/model/user_model.dart';
 import 'package:todo_app_gelismis/services/hybrid_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -35,14 +33,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         final hybridService = HybridService();
-        
+
         // Hybrid service ile kayıt ol
         final response = await hybridService.register(
           _usernameController.text.trim(),
           '${_nameController.text.trim()}.${_surnameController.text.trim()}@example.com', // Email oluştur
           _passwordController.text,
         );
-        
+
         // Hangi modda çalıştığını göster
         final message = response['message'] ?? 'Kayıt başarılı! Hoşgeldiniz.';
         ScaffoldMessenger.of(context).showSnackBar(
@@ -51,10 +49,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Kullanıcı ID'sini response'dan al veya varsayılan değer kullan
         final userId = response['user']?['id'] ?? 1;
-        
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -107,14 +105,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(height: isLandscape ? height * 0.03 : height * 0.05),
-                        
+                        SizedBox(
+                            height:
+                                isLandscape ? height * 0.03 : height * 0.05),
+
                         // Logo Container
                         Container(
                           padding: EdgeInsets.all(isTablet ? 24 : 16),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.6),
-                            borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+                            borderRadius:
+                                BorderRadius.circular(isTablet ? 20 : 16),
                             boxShadow: const [
                               BoxShadow(
                                 color: Colors.black26,
@@ -132,9 +133,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                         ),
-                        
+
                         SizedBox(height: isTablet ? 40 : 30),
-                        
+
                         // Title
                         Text(
                           'Hesap Oluştur',
@@ -144,9 +145,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             color: Colors.blueGrey,
                           ),
                         ),
-                        
+
                         SizedBox(height: isTablet ? 50 : 40),
-                        
+
                         // Form Container
                         Container(
                           width: isTablet ? width * 0.4 : double.infinity,
@@ -166,10 +167,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     fontSize: isTablet ? 18 : 16,
                                   ),
                                   enabledBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey),
+                                    borderSide:
+                                        BorderSide(color: Colors.blueGrey),
                                   ),
                                   focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                    borderSide: BorderSide(
+                                        color: Colors.blueGrey, width: 2),
                                   ),
                                 ),
                                 validator: (value) {
@@ -179,9 +182,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              
+
                               SizedBox(height: isTablet ? 30 : 20),
-                              
+
                               // Soyad
                               TextFormField(
                                 controller: _surnameController,
@@ -193,10 +196,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     fontSize: isTablet ? 18 : 16,
                                   ),
                                   enabledBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey),
+                                    borderSide:
+                                        BorderSide(color: Colors.blueGrey),
                                   ),
                                   focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                    borderSide: BorderSide(
+                                        color: Colors.blueGrey, width: 2),
                                   ),
                                 ),
                                 validator: (value) {
@@ -206,9 +211,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              
+
                               SizedBox(height: isTablet ? 30 : 20),
-                              
+
                               // Kullanıcı Adı
                               TextFormField(
                                 controller: _usernameController,
@@ -220,10 +225,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     fontSize: isTablet ? 18 : 16,
                                   ),
                                   enabledBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey),
+                                    borderSide:
+                                        BorderSide(color: Colors.blueGrey),
                                   ),
                                   focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                    borderSide: BorderSide(
+                                        color: Colors.blueGrey, width: 2),
                                   ),
                                 ),
                                 validator: (value) {
@@ -236,9 +243,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              
+
                               SizedBox(height: isTablet ? 30 : 20),
-                              
+
                               // Şifre
                               TextFormField(
                                 controller: _passwordController,
@@ -251,20 +258,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     fontSize: isTablet ? 18 : 16,
                                   ),
                                   enabledBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey),
+                                    borderSide:
+                                        BorderSide(color: Colors.blueGrey),
                                   ),
                                   focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                    borderSide: BorderSide(
+                                        color: Colors.blueGrey, width: 2),
                                   ),
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                      _isPasswordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
                                       color: Colors.blueGrey,
                                       size: isTablet ? 28 : 24,
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        _isPasswordVisible = !_isPasswordVisible;
+                                        _isPasswordVisible =
+                                            !_isPasswordVisible;
                                       });
                                     },
                                   ),
@@ -279,9 +291,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              
+
                               SizedBox(height: isTablet ? 30 : 20),
-                              
+
                               // Şifre Tekrar
                               TextFormField(
                                 controller: _confirmPasswordController,
@@ -294,20 +306,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     fontSize: isTablet ? 18 : 16,
                                   ),
                                   enabledBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey),
+                                    borderSide:
+                                        BorderSide(color: Colors.blueGrey),
                                   ),
                                   focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                    borderSide: BorderSide(
+                                        color: Colors.blueGrey, width: 2),
                                   ),
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                      _isConfirmPasswordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
                                       color: Colors.blueGrey,
                                       size: isTablet ? 28 : 24,
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                        _isConfirmPasswordVisible =
+                                            !_isConfirmPasswordVisible;
                                       });
                                     },
                                   ),
@@ -322,9 +339,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                               ),
-                              
+
                               SizedBox(height: isTablet ? 50 : 40),
-                              
+
                               // Kayıt Ol Butonu
                               SizedBox(
                                 width: double.infinity,
@@ -337,7 +354,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       vertical: isTablet ? 20 : 16,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(isTablet ? 35 : 30),
+                                      borderRadius: BorderRadius.circular(
+                                          isTablet ? 35 : 30),
                                     ),
                                     elevation: 4,
                                   ),
@@ -350,9 +368,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                               ),
-                              
+
                               SizedBox(height: isTablet ? 30 : 20),
-                              
+
                               // Giriş Yap Linki
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -380,8 +398,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ],
                           ),
                         ),
-                        
-                        SizedBox(height: isLandscape ? height * 0.03 : height * 0.05),
+
+                        SizedBox(
+                            height:
+                                isLandscape ? height * 0.03 : height * 0.05),
                       ],
                     ),
                   ),
@@ -393,4 +413,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-} 
+}

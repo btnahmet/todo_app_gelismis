@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app_gelismis/screens/home_screen.dart';
 import 'package:todo_app_gelismis/screens/register_screen.dart';
-import 'package:todo_app_gelismis/database/database_helper.dart';
 import 'package:todo_app_gelismis/services/hybrid_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -57,7 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       if (_rememberMe) {
-        await prefs.setString('saved_username', _usernameController.text.trim());
+        await prefs.setString(
+            'saved_username', _usernameController.text.trim());
         await prefs.setString('saved_password', _passwordController.text);
         await prefs.setBool('remember_me', true);
       } else {
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Hybrid service ile giriş yap
       final hybridService = HybridService();
       final response = await hybridService.login(username, password);
-      
+
       // Kullanıcı bilgilerini kaydet
       await _saveCredentials();
 
@@ -104,10 +104,10 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      
+
       // Kullanıcı ID'sini response'dan al veya varsayılan değer kullan
       final userId = response['user']?['id'] ?? 1;
-      
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -161,14 +161,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: isLandscape ? height * 0.05 : height * 0.1),
-                      
+                      SizedBox(
+                          height: isLandscape ? height * 0.05 : height * 0.1),
+
                       // Logo Container
                       Container(
                         padding: EdgeInsets.all(isTablet ? 0 : 0),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+                          borderRadius:
+                              BorderRadius.circular(isTablet ? 20 : 16),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
@@ -184,9 +186,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           fit: BoxFit.contain,
                         ),
                       ),
-                      
+
                       SizedBox(height: isTablet ? 40 : 30),
-                      
+
                       // Welcome Text
                       Text(
                         'Hoşgeldiniz',
@@ -196,9 +198,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Colors.blueGrey,
                         ),
                       ),
-                      
+
                       SizedBox(height: isTablet ? 50 : 40),
-                      
+
                       // Form Container
                       Container(
                         width: isTablet ? width * 0.4 : double.infinity,
@@ -218,16 +220,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   fontSize: isTablet ? 18 : 16,
                                 ),
                                 enabledBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blueGrey),
+                                  borderSide:
+                                      BorderSide(color: Colors.blueGrey),
                                 ),
                                 focusedBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                  borderSide: BorderSide(
+                                      color: Colors.blueGrey, width: 2),
                                 ),
                               ),
                             ),
-                            
+
                             SizedBox(height: isTablet ? 30 : 20),
-                            
+
                             // Password Field
                             TextField(
                               controller: _passwordController,
@@ -240,14 +244,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   fontSize: isTablet ? 18 : 16,
                                 ),
                                 enabledBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blueGrey),
+                                  borderSide:
+                                      BorderSide(color: Colors.blueGrey),
                                 ),
                                 focusedBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blueGrey, width: 2),
+                                  borderSide: BorderSide(
+                                      color: Colors.blueGrey, width: 2),
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                    _isPasswordVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                     color: Colors.blueGrey,
                                     size: isTablet ? 28 : 24,
                                   ),
@@ -259,9 +267,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
-                            
+
                             SizedBox(height: isTablet ? 20 : 15),
-                            
+
                             // Beni Hatırla Switch
                             Row(
                               children: [
@@ -274,8 +282,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         _rememberMe = value;
                                       });
                                     },
-                                    activeColor: Colors.blueGrey,
-                                    activeTrackColor: Colors.blueGrey.withOpacity(0.3),
+                                    activeThumbColor: Colors.blueGrey,
+                                    activeTrackColor:
+                                        Colors.blueGrey.withOpacity(0.3),
                                   ),
                                 ),
                                 SizedBox(width: isTablet ? 12 : 8),
@@ -289,9 +298,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ],
                             ),
-                            
+
                             SizedBox(height: isTablet ? 30 : 25),
-                            
+
                             // Login Button
                             SizedBox(
                               width: double.infinity,
@@ -304,7 +313,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     vertical: isTablet ? 20 : 16,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(isTablet ? 35 : 30),
+                                    borderRadius: BorderRadius.circular(
+                                        isTablet ? 35 : 30),
                                   ),
                                   elevation: 4,
                                 ),
@@ -326,9 +336,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                               ),
                             ),
-                            
+
                             SizedBox(height: isTablet ? 15 : 10),
-                            
+
                             // Forgot Password Text
                             Text(
                               'Şifreni mi unuttun?',
@@ -337,9 +347,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 fontSize: isTablet ? 16 : 14,
                               ),
                             ),
-                            
+
                             SizedBox(height: isTablet ? 40 : 30),
-                            
+
                             // Register Button
                             SizedBox(
                               width: double.infinity,
@@ -348,7 +358,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const RegisterScreen(),
+                                      builder: (context) =>
+                                          const RegisterScreen(),
                                     ),
                                   );
                                 },
@@ -359,7 +370,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     vertical: isTablet ? 20 : 16,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(isTablet ? 35 : 30),
+                                    borderRadius: BorderRadius.circular(
+                                        isTablet ? 35 : 30),
                                   ),
                                   elevation: 4,
                                 ),
@@ -375,8 +387,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
-                      
-                      SizedBox(height: isLandscape ? height * 0.05 : height * 0.1),
+
+                      SizedBox(
+                          height: isLandscape ? height * 0.05 : height * 0.1),
                     ],
                   ),
                 ),
