@@ -1,69 +1,3 @@
-// class TodoModel {
-//   final String id;
-//   final String title;
-//   final String? description;
-//   final bool isDone;
-//   final DateTime createdAt;
-//   final DateTime? dueDate;
-//   final int userId;
-
-//   TodoModel({
-//     required this.id,
-//     required this.title,
-//     this.description,
-//     this.isDone = false,
-//     required this.createdAt,
-//     this.dueDate,
-//     required this.userId,
-//   });
-
-//   // Veriyi Map'e çevir
-//   Map<String, dynamic> toMap() {
-//     return {
-//       'id': id,
-//       'title': title,
-//       'description': description,
-//       'isDone': isDone ? 1 : 0,
-//       'createdAt': createdAt.toIso8601String(),
-//       'dueDate': dueDate?.toIso8601String(),
-//       'userId': userId,
-//     };
-//   }
-
-//   // Map'ten tekrar modele çevir
-//   factory TodoModel.fromMap(Map<String, dynamic> map) {
-//     return TodoModel(
-//       id: map['id'],
-//       title: map['title'],
-//       description: map['description'],
-//       isDone: map['isDone'] == 1 || map['isDone'] == true,
-//       createdAt: DateTime.parse(map['createdAt']),
-//       dueDate:
-//           map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null,
-//       userId: map['userId'],
-//     );
-//   }
-//   TodoModel copyWith({
-//   String? id,
-//   String? title,
-//   String? description,
-//   DateTime? createdAt,
-//   DateTime? dueDate,
-//   bool? isDone,
-//   int? userId,
-// }) {
-//   return TodoModel(
-//     id: id ?? this.id,
-//     title: title ?? this.title,
-//     description: description ?? this.description,
-//     createdAt: createdAt ?? this.createdAt,
-//     dueDate: dueDate ?? this.dueDate,
-//     isDone: isDone ?? this.isDone,
-//     userId: userId ?? this.userId,
-//   );
-// }
-// }
-
 class TodoModel {
   final String id;
   final String title;
@@ -73,7 +7,7 @@ class TodoModel {
   final DateTime? dueDate;
   final int userId;
   // YENİ: Bu veri sunucuyla eşitlendi mi? (0: Hayır, 1: Evet)
-  final int isSynced; 
+  final int isSynced;
 
   TodoModel({
     required this.id,
